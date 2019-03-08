@@ -3,12 +3,12 @@ server {
 
         listen *:443 ssl;
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-        ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
-        ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
+        ssl_certificate /var/www/lar-qs/environment/ssl/laravel.dev.crt;
+        ssl_certificate_key /var/www/lar-qs/environment/ssl/laravel.dev.key;
 
-        server_name house-experts.dev www.house-experts.dev;
+        server_name laravel.dev www.laravel.dev api.laravel.dev admin.laravel.dev;
 
-        root   /var/www/house-experts.pro/vue-frontend/dist;
+        root   /var/www/lar-qs/public;
 
 
 
@@ -58,8 +58,17 @@ server {
             internal;
         }
 
-        error_log /var/log/nginx/house-experts.dev-error.log;
-        access_log /var/log/nginx/house-experts.dev-access.log combined;
+        error_log /var/log/nginx/laravel.dev-error.log;
+        access_log /var/log/nginx/laravel.dev-access.log combined;
+
+        location ~ \.php$ {
+            try_files $uri =404;
+            include /etc/openresty/fastcgi_params;
+            fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_intercept_errors off;
+        }
 
         location ~ /\. {
             deny all;
@@ -83,17 +92,7 @@ server {
         }
 
         if ($scheme != "https") {
-          rewrite ^ https://www.house-experts.dev$request_uri? permanent;
-        }
-
-        location @image_server {
-            content_by_lua_file "serve_image.lua";
-        }
-
-        location ~ ^/images/(?<sig>[^/]+)/(?<size>[^/]+)/(?<path>.*\.(?<ext>[a-z_]*))$ {
-            root cache;
-            set_md5 $digest "$size/$path";
-            try_files /$digest.$ext @image_server;
+          rewrite ^ https://www.laravel.dev$request_uri? permanent;
         }
 
         location / {
@@ -113,130 +112,3 @@ server {
 
 }
 
-
-
-server {
-    listen *:80;
-
-    listen *:443 ssl;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
-    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
-
-    server_name amp.house-experts.dev;
-
-    root   /var/www/house-experts.pro/app/frontend/web;
-    index index.html index.htm index.php index.cgi index.pl index.xhtml;
-
-        error_log /var/log/nginx/amp.house-experts.dev-error.log;
-        access_log /var/log/nginx/amp.house-experts.dev-access.log combined;
-
-
-    location ~ \.php$ {
-        try_files $uri =404;
-        include /etc/openresty/fastcgi_params;
-        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_intercept_errors off;
-    }
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-        client_max_body_size 100M;
-        fastcgi_read_timeout 90;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-}
-
-server {
-    listen *:80;
-
-    listen *:443 ssl;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
-    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
-
-    server_name api.house-experts.dev;
-
-    root   /var/www/house-experts.pro/app/api/web;
-    index index.html index.htm index.php index.cgi index.pl index.xhtml;
-
-        error_log /var/log/nginx/api.house-experts.dev-error.log;
-        access_log /var/log/nginx/api.house-experts.dev-access.log combined;
-
-
-    location ~ \.php$ {
-        try_files $uri =404;
-        include /etc/openresty/fastcgi_params;
-        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_intercept_errors off;
-    }
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-        client_max_body_size 100M;
-        fastcgi_read_timeout 90;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-}
-
-server {
-    listen *:80;
-
-    listen *:443 ssl;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
-    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
-
-    server_name admin.house-experts.dev;
-
-    root   /var/www/house-experts.pro/app/backend/web;
-    index index.html index.htm index.php index.cgi index.pl index.xhtml;
-
-        error_log /var/log/nginx/admin.house-experts.dev-error.log;
-        access_log /var/log/nginx/admin.house-experts.dev-access.log combined;
-
-
-    location ~ \.php$ {
-        try_files $uri =404;
-        include /etc/openresty/fastcgi_params;
-        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_intercept_errors off;
-    }
-
-    location / {
-      try_files $uri $uri/ /index.php?$query_string;
-    }
-
-        client_max_body_size 100M;
-        fastcgi_read_timeout 90;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-}
-
-server {
-    listen *:80;
-
-    listen *:443 ssl;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
-    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
-
-    server_name static.house-experts.dev;
-
-    root   /var/www/house-experts.pro/app/backend/web;
-    index index.html index.htm index.php index.cgi index.pl index.xhtml;
-
-        error_log /var/log/nginx/static.house-experts.dev-error.log;
-        access_log /var/log/nginx/static.house-experts.dev-access.log combined;
-
-}
