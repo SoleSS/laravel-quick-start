@@ -1,0 +1,13 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = laravel.dev
+DNS.2 = api.laravel.dev
+DNS.3 = www.laravel.dev
+DNS.4 = admin.laravel.dev
+DNS.5 = static.laravel.dev
+DNS.6 = auth.laravel.dev
+DNS.7 = api2.laravel.dev

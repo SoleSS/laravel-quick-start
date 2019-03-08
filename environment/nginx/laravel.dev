@@ -1,0 +1,242 @@
+server {
+        listen *:80;
+
+        listen *:443 ssl;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
+        ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
+
+        server_name house-experts.dev www.house-experts.dev;
+
+        root   /var/www/house-experts.pro/vue-frontend/dist;
+
+
+
+        index index.html index.htm index.php index.cgi index.pl index.xhtml;
+
+
+
+        error_page 400 /error/400.html;
+        error_page 401 /error/401.html;
+        error_page 403 /error/403.html;
+        error_page 404 /error/404.html;
+        error_page 405 /error/405.html;
+        error_page 500 /error/500.html;
+        error_page 502 /error/502.html;
+        error_page 503 /error/503.html;
+        recursive_error_pages on;
+        location = /error/400.html {
+
+            internal;
+        }
+        location = /error/401.html {
+
+            internal;
+        }
+        location = /error/403.html {
+
+            internal;
+        }
+        location = /error/404.html {
+
+            internal;
+        }
+        location = /error/405.html {
+
+            internal;
+        }
+        location = /error/500.html {
+
+            internal;
+        }
+        location = /error/502.html {
+
+            internal;
+        }
+        location = /error/503.html {
+
+            internal;
+        }
+
+        error_log /var/log/nginx/house-experts.dev-error.log;
+        access_log /var/log/nginx/house-experts.dev-access.log combined;
+
+        location ~ /\. {
+            deny all;
+            access_log off;
+            log_not_found off;
+        }
+
+        location = /favicon.ico {
+            log_not_found off;
+            access_log off;
+        }
+
+        location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+        }
+
+        location ^~ /awstats-icon {
+            alias /usr/share/awstats/icon;
+        }
+
+        if ($scheme != "https") {
+          rewrite ^ https://www.house-experts.dev$request_uri? permanent;
+        }
+
+        location @image_server {
+            content_by_lua_file "serve_image.lua";
+        }
+
+        location ~ ^/images/(?<sig>[^/]+)/(?<size>[^/]+)/(?<path>.*\.(?<ext>[a-z_]*))$ {
+            root cache;
+            set_md5 $digest "$size/$path";
+            try_files /$digest.$ext @image_server;
+        }
+
+        location / {
+                try_files $uri $uri/ /index.html?$args;
+        }
+
+        location ~ /\.(ht|svn|git) {
+                deny all;
+        }
+
+
+        client_max_body_size 100M;
+        fastcgi_read_timeout 90;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+
+
+}
+
+
+
+server {
+    listen *:80;
+
+    listen *:443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
+    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
+
+    server_name amp.house-experts.dev;
+
+    root   /var/www/house-experts.pro/app/frontend/web;
+    index index.html index.htm index.php index.cgi index.pl index.xhtml;
+
+        error_log /var/log/nginx/amp.house-experts.dev-error.log;
+        access_log /var/log/nginx/amp.house-experts.dev-access.log combined;
+
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include /etc/openresty/fastcgi_params;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_intercept_errors off;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+        client_max_body_size 100M;
+        fastcgi_read_timeout 90;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+}
+
+server {
+    listen *:80;
+
+    listen *:443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
+    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
+
+    server_name api.house-experts.dev;
+
+    root   /var/www/house-experts.pro/app/api/web;
+    index index.html index.htm index.php index.cgi index.pl index.xhtml;
+
+        error_log /var/log/nginx/api.house-experts.dev-error.log;
+        access_log /var/log/nginx/api.house-experts.dev-access.log combined;
+
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include /etc/openresty/fastcgi_params;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_intercept_errors off;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+        client_max_body_size 100M;
+        fastcgi_read_timeout 90;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+}
+
+server {
+    listen *:80;
+
+    listen *:443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
+    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
+
+    server_name admin.house-experts.dev;
+
+    root   /var/www/house-experts.pro/app/backend/web;
+    index index.html index.htm index.php index.cgi index.pl index.xhtml;
+
+        error_log /var/log/nginx/admin.house-experts.dev-error.log;
+        access_log /var/log/nginx/admin.house-experts.dev-access.log combined;
+
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include /etc/openresty/fastcgi_params;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_intercept_errors off;
+    }
+
+    location / {
+      try_files $uri $uri/ /index.php?$query_string;
+    }
+
+        client_max_body_size 100M;
+        fastcgi_read_timeout 90;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+}
+
+server {
+    listen *:80;
+
+    listen *:443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.crt;
+    ssl_certificate_key /var/www/house-experts.pro/app/environments/dev/common/ssl/house-experts.dev.key;
+
+    server_name static.house-experts.dev;
+
+    root   /var/www/house-experts.pro/app/backend/web;
+    index index.html index.htm index.php index.cgi index.pl index.xhtml;
+
+        error_log /var/log/nginx/static.house-experts.dev-error.log;
+        access_log /var/log/nginx/static.house-experts.dev-access.log combined;
+
+}
