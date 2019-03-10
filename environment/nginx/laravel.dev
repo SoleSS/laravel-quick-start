@@ -96,7 +96,7 @@ server {
         }
 
         location / {
-                try_files $uri $uri/ /index.html?$args;
+                try_files $uri $uri/ /index.php?$query_string;
         }
 
         location ~ /\.(ht|svn|git) {
